@@ -45,26 +45,26 @@ class Util
      * @param  \ReflectionParameter  $parameter
      * @return string|null
      */
-    public static function getParameterClassName($parameter)
-    {
-        $type = $parameter->getType();
+//    public static function getParameterClassName($parameter)
+//    {
+//        $type = $parameter->getType();
 
-        if (! $type instanceof ReflectionNamedType || $type->isBuiltin()) {
-            return;
-        }
+//        if (! $type instanceof ReflectionNamedType || $type->isBuiltin()) {
+//            return;
+//        }
 
-        $name = $type->getName();
+//        $name = $type->getName();
 
-        if (! is_null($class = $parameter->getDeclaringClass())) {
-            if ($name === 'self') {
-                return $class->getName();
-            }
+//        if (! is_null($class = $parameter->getDeclaringClass())) {
+//            if ($name === 'self') {
+//                return $class->getName();
+//            }
 
-            if ($name === 'parent' && $parent = $class->getParentClass()) {
-                return $parent->getName();
-            }
-        }
+//            if ($name === 'parent' && $parent = $class->getParentClass()) {
+//                return $parent->getName();
+//            }
+//        }
 
-        return $name;
-    }
+//        return $name;
+//    }
 }

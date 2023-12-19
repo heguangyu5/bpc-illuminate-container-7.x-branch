@@ -805,48 +805,54 @@ class Container implements ArrayAccess, ContainerContract
             return $concrete($this, $this->getLastParameterOverride());
         }
 
-        try {
-            $reflector = new ReflectionClass($concrete);
-        } catch (ReflectionException $e) {
-            throw new BindingResolutionException("Target class [$concrete] does not exist.", 0, $e);
-        }
-
-        // If the type is not instantiable, the developer is attempting to resolve
-        // an abstract type such as an Interface or Abstract Class and there is
-        // no binding registered for the abstractions so we need to bail out.
-        if (! $reflector->isInstantiable()) {
-            return $this->notInstantiable($concrete);
-        }
-
-        $this->buildStack[] = $concrete;
-
-        $constructor = $reflector->getConstructor();
-
-        // If there are no constructors, that means there are no dependencies then
-        // we can just resolve the instances of the objects right away, without
-        // resolving any other types or dependencies out of these containers.
-        if (is_null($constructor)) {
-            array_pop($this->buildStack);
-
+        if ($this->with) {
+            return new $concrete(...array_values($this->getLastParameterOverride()));
+        } else {
             return new $concrete;
         }
 
-        $dependencies = $constructor->getParameters();
+//        try {
+//            $reflector = new ReflectionClass($concrete);
+//        } catch (ReflectionException $e) {
+//            throw new BindingResolutionException("Target class [$concrete] does not exist.", 0, $e);
+//        }
 
-        // Once we have all the constructor's parameters we can create each of the
-        // dependency instances and then use the reflection instances to make a
-        // new instance of this class, injecting the created dependencies in.
-        try {
-            $instances = $this->resolveDependencies($dependencies);
-        } catch (BindingResolutionException $e) {
-            array_pop($this->buildStack);
+//        // If the type is not instantiable, the developer is attempting to resolve
+//        // an abstract type such as an Interface or Abstract Class and there is
+//        // no binding registered for the abstractions so we need to bail out.
+//        if (! $reflector->isInstantiable()) {
+//            return $this->notInstantiable($concrete);
+//        }
 
-            throw $e;
-        }
+//        $this->buildStack[] = $concrete;
 
-        array_pop($this->buildStack);
+//        $constructor = $reflector->getConstructor();
 
-        return $reflector->newInstanceArgs($instances);
+//        // If there are no constructors, that means there are no dependencies then
+//        // we can just resolve the instances of the objects right away, without
+//        // resolving any other types or dependencies out of these containers.
+//        if (is_null($constructor)) {
+//            array_pop($this->buildStack);
+
+//            return new $concrete;
+//        }
+
+//        $dependencies = $constructor->getParameters();
+
+//        // Once we have all the constructor's parameters we can create each of the
+//        // dependency instances and then use the reflection instances to make a
+//        // new instance of this class, injecting the created dependencies in.
+//        try {
+//            $instances = $this->resolveDependencies($dependencies);
+//        } catch (BindingResolutionException $e) {
+//            array_pop($this->buildStack);
+
+//            throw $e;
+//        }
+
+//        array_pop($this->buildStack);
+
+//        return $reflector->newInstanceArgs($instances);
     }
 
     /**
@@ -930,18 +936,18 @@ class Container implements ArrayAccess, ContainerContract
      *
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    protected function resolvePrimitive(ReflectionParameter $parameter)
-    {
-        if (! is_null($concrete = $this->getContextualConcrete('$'.$parameter->getName()))) {
-            return $concrete instanceof Closure ? $concrete($this) : $concrete;
-        }
+//    protected function resolvePrimitive(ReflectionParameter $parameter)
+//    {
+//        if (! is_null($concrete = $this->getContextualConcrete('$'.$parameter->getName()))) {
+//            return $concrete instanceof Closure ? $concrete($this) : $concrete;
+//        }
 
-        if ($parameter->isDefaultValueAvailable()) {
-            return $parameter->getDefaultValue();
-        }
+//        if ($parameter->isDefaultValueAvailable()) {
+//            return $parameter->getDefaultValue();
+//        }
 
-        $this->unresolvablePrimitive($parameter);
-    }
+//        $this->unresolvablePrimitive($parameter);
+//    }
 
     /**
      * Resolve a class based dependency from the container.
@@ -951,29 +957,29 @@ class Container implements ArrayAccess, ContainerContract
      *
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    protected function resolveClass(ReflectionParameter $parameter)
-    {
-        try {
-            return $parameter->isVariadic()
-                        ? $this->resolveVariadicClass($parameter)
-                        : $this->make(Util::getParameterClassName($parameter));
-        }
+//    protected function resolveClass(ReflectionParameter $parameter)
+//    {
+//        try {
+//            return $parameter->isVariadic()
+//                        ? $this->resolveVariadicClass($parameter)
+//                        : $this->make(Util::getParameterClassName($parameter));
+//        }
 
-        // If we can not resolve the class instance, we will check to see if the value
-        // is optional, and if it is we will return the optional parameter value as
-        // the value of the dependency, similarly to how we do this with scalars.
-        catch (BindingResolutionException $e) {
-            if ($parameter->isDefaultValueAvailable()) {
-                return $parameter->getDefaultValue();
-            }
+//        // If we can not resolve the class instance, we will check to see if the value
+//        // is optional, and if it is we will return the optional parameter value as
+//        // the value of the dependency, similarly to how we do this with scalars.
+//        catch (BindingResolutionException $e) {
+//            if ($parameter->isDefaultValueAvailable()) {
+//                return $parameter->getDefaultValue();
+//            }
 
-            if ($parameter->isVariadic()) {
-                return [];
-            }
+//            if ($parameter->isVariadic()) {
+//                return [];
+//            }
 
-            throw $e;
-        }
-    }
+//            throw $e;
+//        }
+//    }
 
     /**
      * Resolve a class based variadic dependency from the container.
@@ -981,20 +987,20 @@ class Container implements ArrayAccess, ContainerContract
      * @param  \ReflectionParameter  $parameter
      * @return mixed
      */
-    protected function resolveVariadicClass(ReflectionParameter $parameter)
-    {
-        $className = Util::getParameterClassName($parameter);
+//    protected function resolveVariadicClass(ReflectionParameter $parameter)
+//    {
+//        $className = Util::getParameterClassName($parameter);
 
-        $abstract = $this->getAlias($className);
+//        $abstract = $this->getAlias($className);
 
-        if (! is_array($concrete = $this->getContextualConcrete($abstract))) {
-            return $this->make($className);
-        }
+//        if (! is_array($concrete = $this->getContextualConcrete($abstract))) {
+//            return $this->make($className);
+//        }
 
-        return array_map(function ($abstract) {
-            return $this->resolve($abstract);
-        }, $concrete);
-    }
+//        return array_map(function ($abstract) {
+//            return $this->resolve($abstract);
+//        }, $concrete);
+//    }
 
     /**
      * Throw an exception that the concrete is not instantiable.
@@ -1025,12 +1031,12 @@ class Container implements ArrayAccess, ContainerContract
      *
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    protected function unresolvablePrimitive(ReflectionParameter $parameter)
-    {
-        $message = "Unresolvable dependency resolving [$parameter] in class {$parameter->getDeclaringClass()->getName()}";
+//    protected function unresolvablePrimitive(ReflectionParameter $parameter)
+//    {
+//        $message = "Unresolvable dependency resolving [$parameter] in class {$parameter->getDeclaringClass()->getName()}";
 
-        throw new BindingResolutionException($message);
-    }
+//        throw new BindingResolutionException($message);
+//    }
 
     /**
      * Register a new resolving callback.

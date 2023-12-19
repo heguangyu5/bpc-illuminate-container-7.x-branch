@@ -135,18 +135,18 @@ class BoundMethod
      *
      * @throws \ReflectionException
      */
-    protected static function getCallReflector($callback)
-    {
-        if (is_string($callback) && strpos($callback, '::') !== false) {
-            $callback = explode('::', $callback);
-        } elseif (is_object($callback) && ! $callback instanceof Closure) {
-            $callback = [$callback, '__invoke'];
-        }
+//    protected static function getCallReflector($callback)
+//    {
+//        if (is_string($callback) && strpos($callback, '::') !== false) {
+//            $callback = explode('::', $callback);
+//        } elseif (is_object($callback) && ! $callback instanceof Closure) {
+//            $callback = [$callback, '__invoke'];
+//        }
 
-        return is_array($callback)
-                        ? new ReflectionMethod($callback[0], $callback[1])
-                        : new ReflectionFunction($callback);
-    }
+//        return is_array($callback)
+//                        ? new ReflectionMethod($callback[0], $callback[1])
+//                        : new ReflectionFunction($callback);
+//    }
 
     /**
      * Get the dependency for the given call parameter.
